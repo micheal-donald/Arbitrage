@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # specify the URL of the Betika website
-url = 'https://www.betika.com/en-ke/'
+url = 'https://odibets.com/'
 
 # set headers 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0'}
@@ -15,7 +15,7 @@ try:
     soup = BeautifulSoup(response.content, 'html.parser')
 
     # find all elements with the class 'pre-bet match'
-    matches = soup.find_all("div", class_='pre-bet match')
+    matches = soup.find_all("div", class_='l-games-event')
 
     # iterate through the matches and print the text
     for match in matches:
