@@ -55,49 +55,32 @@ try:
     for match in matches: 
         # print(match.prettify())
         # time = match.select('a span:first-child')
-        time = match.find_element_by_class_name('m').text
-        print(time)
+        time = match.find("div", class_='m').find_all('span')[-3].text
 
         for link in match.find('a',{'class': 'inf'}):
             teams = match.find_all('div', {'class': 't-i'})
         home = teams[0].text
         away = teams[1].text
-        print(home)
-        print(away)
-        print("------------------------------")
 
+        # Find the odds
+        for button in match.find('div', {'class': 'mar-cont'}):
+            odds = match.find_all('span', class_='b')
+        H = odds[0].text
+        X = odds[1].text
+        A = odds[2].text
 
+        # store the data in a dictionary
+        data.append({
+        'time': time,
+        'home': home,
+        'away': away,
+        'H': H,
+        'X': X,
+        'A': A
+        })
 
-
-        # for team in teams:
-        #     team_list.append(team.text)
-        # print(team_list)
-    #     time = re.sub(r"[\n\t]*", '', match.find('div', {'class': 'time'}).text)
-    #     home = match.find('span', {'class': 'prebet-match__teams__home'}).text
-    #     teams = match.find('div', {'class': 'prebet-match__teams'}).text
-    #     get_away = lambda x: x.replace(home, '').strip()
-    #     away = get_away(teams)
-    #     odds_list = []
-    #     odds = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
-    #     for odd in odds:
-    #             odds_list.append(float(odd.text))
-        
-
-    #     # print(time.strip())
-    #     # print(home.strip())
-    #     # print(away.strip())
-    #     # print(odds_list)
-    #     # print('---------------------')
-
-    #     # store the data in a dictionary
-    #     data.append({
-    #         'time': time,
-    #         'home': home,
-    #         'away': away,
-    #         'odds': odds_list
-    #     })
-    # df = pd.DataFrame(data)
-    # print(df)
+    df = pd.DataFrame(data)
+    print(df)
 
 except Exception as e:
     print(f'An error occurred: {e}')

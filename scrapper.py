@@ -14,6 +14,8 @@ try:
     # parse the HTML content of the website
     soup = BeautifulSoup(response.content, 'html.parser')
 
+    print(soup.prettify())
+
     # find all elements with the class 'pre-bet match'
     matches = soup.find_all("div", class_='l-games-event')
 

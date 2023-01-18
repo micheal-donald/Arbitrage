@@ -42,8 +42,6 @@ try:
 
     # get the HTML content of the page
     html = driver.page_source
-    #myDiv = driver.find_element(By.CLASS_NAME, 'prebet-match')
-    #print(myDiv.text)
 
     # parse the HTML content of the website
     soup = BeautifulSoup(html, 'html.parser')
@@ -63,24 +61,21 @@ try:
         teams = match.find('div', {'class': 'prebet-match__teams'}).text
         get_away = lambda x: x.replace(home, '').strip()
         away = get_away(teams)
-        odds_list = []
-        odds = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
-        for odd in odds:
-                odds_list.append(float(odd.text))
-        
-
-        # print(time.strip())
-        # print(home.strip())
-        # print(away.strip())
-        # print(odds_list)
-        # print('---------------------')
+        odds_list = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
+        for odd in odds_list:
+            odds = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
+            H = float(odds[0].text)
+            X = float(odds[1].text)
+            A = float(odds[2].text)
 
         # store the data in a dictionary
         data.append({
             'time': time,
             'home': home,
             'away': away,
-            'odds': odds_list
+            'H': H,
+            'X': X,
+            'A': A
         })
     df = pd.DataFrame(data)
     print(df)
