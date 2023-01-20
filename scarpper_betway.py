@@ -2,13 +2,15 @@ import requests
 import os
 import re
 import pandas as pd
+import pickle
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-
+from selenium.webdriver.support.ui import Select
+# def scrap_betika():
 # specify the URL of the website
-url = 'https://www.betika.com/en-ke/s/soccer'
+url = 'https://www.betway.co.ke/sport/soccer'
 # set headers 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0'}
 
@@ -33,7 +35,9 @@ service.start()
 # create a new instance of the Firefox driver
 # Instantiate a webdriver
 driver = webdriver.Remote(service.service_url, options=chrome_options)
+
 try:
+
     # navigate to the website
     driver.get(url)
 
@@ -46,40 +50,44 @@ try:
     # parse the HTML content of the website
     soup = BeautifulSoup(html, 'html.parser')
 
-    # find all elements with the class 'pre-bet match'
-    matches = soup.find_all("div", class_='prebet-match')
+
+    # Find the elements with the class 'row eventRow'
+    matches = soup.find_all("class", class_='row eventRow')
 
     # iterate through the matches and print the text
-    teams = []
-    
-    
+
     for match in matches:
-            
-        #print(match.text)
-        time = re.sub(r"[\n\t]*", '', match.find('div', {'class': 'time'}).text)
-        home = match.find('span', {'class': 'prebet-match__teams__home'}).text
-        teams = match.find('div', {'class': 'prebet-match__teams'}).text
-        get_away = lambda x: x.replace(home, '').strip()
-        away = get_away(teams)
-        odds_list = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
-        for odd in odds_list:
-            odds = match.find_all('span', {'class': 'prebet-match__odd__odd-value bold'})
-            H = float(odds[0].text)
-            X = float(odds[1].text)
-            A = float(odds[2].text)
-
-        # store the data in a dictionary
+        league = match.find('div', class_='teams-info-meta-left').text.strip()
+        time = match.find('div', class_='teams-info-meta-right').text.strip()
+        teams_list = match.find_all('div', class_='teams-info-vert-top')
+        for team in teams_list:
+            teams = match.find_all('div', class_='teams-info-vert-top')
+            H = teams[0].text.strip()
+            A = teams[1].text.strip()
+        for odds in match.find_all('div', class_='odds__value'):
+            odds = match.find_all('div', class_='odds__value')
+            Yes = odds[0].text.strip()
+            No = odds[1].text.strip()
+        
+        #store the data in a dictionary
         data.append({
+            'league': league,
             'time': time,
-            'home': home,
-            'away': away,
             'H': H,
-            'X': X,
-            'A': A
+            'A': A,
+            'Yes': Yes,
+            'No': No
         })
-    df = pd.DataFrame(data)
-    print(df)
 
+    df_betk_btts=pd.DataFrame(data)
+    #clean leading and trailing spaces
+    df_betk_btts = df_betk_btts.applymap(lambda x: x.strip() if isinstance(x, str) else x)   
+    #Save data with Pickle
+    output = open('df_betk_btts', 'wb')
+    pickle.dump(df_betk_btts, output)
+    output.close()
+    #return df_betk  
+     
 except Exception as e:
     print(f'An error occurred: {e}')
 

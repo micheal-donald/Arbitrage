@@ -1,28 +1,19 @@
-import requests
-from bs4 import BeautifulSoup
+import subprocess
+import pandas as pd
+import pickle
+from fuzzywuzzy import process, fuzz
+from sympy import symbols, Eq, solve
+from scrapper_betika import scrap_betika
+from scrapper_odi import scrap_odibets
 
-# specify the URL of the Betika website
-url = 'https://odibets.com/'
+def get_odds():
+    # get the odds from the websites
+    betika = scrap_betika()
+    odibets = scrap_odibets()
 
-# set headers 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0'}
 
-try:
-    # send a GET request to the website and store the response
-    response = requests.get(url, headers=headers)
+get_odds()
+    # create a dataframe from the odds
+    # df = pd.DataFrame(betika, columns=['Time', 'Home', 'Away', 'Betika 1', 'Betika X', 'Betika 2'])
+    # df2 = pd.DataFrame(odibets, columns=['Time', 'Home', 'Away', 'Odi 1', 'Odi X', 'Odi 2'])
 
-    # parse the HTML content of the website
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    print(soup.prettify())
-
-    # find all elements with the class 'pre-bet match'
-    matches = soup.find_all("div", class_='l-games-event')
-
-    # iterate through the matches and print the text
-    for match in matches:
-        print(match.text)
-        print('---------------------')
-except requests.exceptions.RequestException as e:
-    # handle error
-    print(f'An error occurred: {e}')
